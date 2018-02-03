@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class SentimentRquest : MonoBehaviour
+public class SentimentRequest : MonoBehaviour
 {
 
     public Texture2D TestImage;
@@ -34,16 +34,17 @@ public class SentimentRquest : MonoBehaviour
         WWWForm form = new WWWForm();
         form.AddBinaryData("data", myData);
 
-        UnityWebRequest www = new UnityWebRequest(uri) {
+        UnityWebRequest www = new UnityWebRequest(uri)
+        {
             method = UnityWebRequest.kHttpVerbPOST,
             uploadHandler = new UploadHandlerRaw(myData)
             {
                 contentType = "application/octet-stream"
             },
             downloadHandler = new DownloadHandlerBuffer()
-            
+
         };
-        
+
         www.SetRequestHeader("Ocp-Apim-Subscription-Key", "ea9fdae1cb6b4217b6a18db65ce710b3");
 
         yield return www.SendWebRequest();
