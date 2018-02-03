@@ -7,37 +7,56 @@ public class SentimentRequest : MonoBehaviour
 {
 
     public Texture2D TestImage;
-
+    public Emotion Response;
     const string uriBase = "https://westus.api.cognitive.microsoft.com/face/v1.0/detect";
 
-    // Use this for initialization
-    void Start()
+
+    public struct Emotion
     {
-        StartCoroutine(Upload());
+        public float anger;
+        public float contempt;
+        public float disgust;
+        public float fear;
+        public float happiness;
+        public float neutral;
+        public float sadness;
+        public float surprise;
+
+        public override string ToString()
+        {
+            return base.ToString();
+
+            return $"anger = {anger}\n" +
+                $"contempt = {contempt}\n" +
+                $"disgust = {disgust}\n" +
+                $"happiness = {happiness}\n" +
+                $"neutral = {neutral}\n" +
+                $"sadness = {sadness}\n" +
+                $"surprise = {surprise}\n";
+        }
+    }
+    struct FaceAttributes
+    {
+        public Emotion emotion;
+    }
+    struct FaceInfo
+    {
+        public string faceId;
+        public FaceAttributes faceAttributes;
     }
 
-    // Update is called once per frame
-    void Update()
+    public IEnumerator Upload(byte[] imageBytes)
     {
-
-    }
-
-    IEnumerator Upload()
-    {
-        byte[] myData = TestImage.EncodeToPNG();
 
         // Request parameters. A third optional parameter is "details".
         string requestParameters = "returnFaceId=true&returnFaceLandmarks=false&returnFaceAttributes=age,gender,headPose,smile,facialHair,glasses,emotion,hair,makeup,occlusion,accessories,blur,exposure,noise";
 
         string uri = uriBase + "?" + requestParameters;
 
-        WWWForm form = new WWWForm();
-        form.AddBinaryData("data", myData);
-
         UnityWebRequest www = new UnityWebRequest(uri)
         {
             method = UnityWebRequest.kHttpVerbPOST,
-            uploadHandler = new UploadHandlerRaw(myData)
+            uploadHandler = new UploadHandlerRaw(imageBytes)
             {
                 contentType = "application/octet-stream"
             },
@@ -57,7 +76,16 @@ public class SentimentRequest : MonoBehaviour
         {
             Debug.Log("Upload complete!");
             Debug.Log(DownloadHandlerBuffer.GetContent(www));
+            Response = ParseJson(DownloadHandlerBuffer.GetContent(www));
         }
     }
-
+    public Emotion ParseJson(string json)
+    {
+        var faces = JsonUtility.FromJson<FaceInfo[]>(json);
+        if (faces != null && faces.Length != 0)
+        {
+            return faces[0].faceAttributes.emotion;
+        }
+        else return default(Emotion);
+    }
 }

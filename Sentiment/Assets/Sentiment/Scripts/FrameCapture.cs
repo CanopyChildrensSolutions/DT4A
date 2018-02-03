@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections;
+using System.IO;
 using UnityEngine;
 using UnityEngine.XR.WSA.Input;
 
@@ -7,7 +8,7 @@ namespace Sentiment
     public class FrameCapture : MonoBehaviour
     {
         GestureRecognizer gestureRecognizer;
-
+        public TextMesh TextMesh;
         void Awake()
         {
             gestureRecognizer = new GestureRecognizer();
@@ -39,8 +40,17 @@ namespace Sentiment
             var videoFeed = GetComponentInParent<VideoFeed>();
             byte[] pngBytes = videoFeed.EncodeCurrentFrameAsPNG();
 
+            StartCoroutine(RequestEmotion(pngBytes));
             
             File.WriteAllBytes(Path.Combine(Application.persistentDataPath, "Test.png"), pngBytes);
+        }
+
+        IEnumerator RequestEmotion(byte [] imageBytes)
+        {
+            var sr = GetComponent<SentimentRequest>();
+            yield return sr.Upload(imageBytes);
+
+            TextMesh.text = sr.Response.ToString();
         }
     }
 }
