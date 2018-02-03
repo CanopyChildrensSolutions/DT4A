@@ -47,7 +47,7 @@ namespace Sentiment
 
         IEnumerator RequestEmotion(byte [] imageBytes)
         {
-            var sr = GetComponent<SentimentRequest>();
+            var sr = GetComponentInParent<SentimentRequest>();
             yield return sr.Upload(imageBytes);
 
             TextMesh.text = sr.Response.ToString();
