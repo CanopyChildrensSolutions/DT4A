@@ -6,8 +6,6 @@ using UnityEngine.Networking;
 
 public class SentimentRequest : MonoBehaviour
 {
-
-    public Texture2D TestImage;
     public Emotion Response;
     const string uriBase = "https://westus.api.cognitive.microsoft.com/face/v1.0/detect";
 
@@ -56,8 +54,6 @@ public class SentimentRequest : MonoBehaviour
 
     public IEnumerator Upload(byte[] imageBytes)
     {
-        imageBytes = TestImage.EncodeToPNG();
-
         // Request parameters. A third optional parameter is "details".
         string requestParameters = "returnFaceId=true&returnFaceLandmarks=false&returnFaceAttributes=age,gender,headPose,smile,facialHair,glasses,emotion,hair,makeup,occlusion,accessories,blur,exposure,noise";
 
@@ -75,30 +71,23 @@ public class SentimentRequest : MonoBehaviour
         };
 
         www.SetRequestHeader("Ocp-Apim-Subscription-Key", "ea9fdae1cb6b4217b6a18db65ce710b3");
+        www.chunkedTransfer = false;
 
         yield return www.SendWebRequest();
 
-        Debug.LogError($"IsNetworkError = { www.isNetworkError }, IsHttpError = {www.isHttpError}");
         if (www.responseCode != 200)
         {
-            Debug.LogError(www.responseCode);
-            Debug.LogError(www.error);
+            Debug.LogError($"Upload failed: http response code = {www.responseCode}, error = {www.error}");
         }
         else
         {
             Debug.Log("Upload complete!");
-            Debug.Log(DownloadHandlerBuffer.GetContent(www));
-            Response = ParseJson(DownloadHandlerBuffer.GetContent(www));
+            Debug.Log(www.downloadHandler.text);
+            Response = ParseJson(www.downloadHandler.text);
         }
     }
     public Emotion ParseJson(string json)
     {
-        var infoTest = new FaceInfoSet() { faceInfos = new FaceInfo[1] };
-        infoTest.faceInfos[0] = new FaceInfo() { faceAttributes = new FaceAttributes() { emotion = new Emotion() } };
-        //infoTest.faceInfos[0].faceAttributes = new FaceAttributes() { emotion = new Emotion() { anger = 1f } };
-        string test = JsonUtility.ToJson(infoTest);
-
-        //json = $"{{ \"faceInfos\" : {json} }}"; 
         json = string.Format("{{ \"{0}\" : {1}}}", "faceInfos", json);
         var faces = JsonUtility.FromJson<FaceInfoSet>(json);
         if (faces.faceInfos != null && faces.faceInfos.Length > 0)
