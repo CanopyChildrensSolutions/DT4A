@@ -17,7 +17,7 @@ namespace Sentiment
         public float SadThresHold;
         [Range(0, 1)]
         public float MadThresHold;
-        public Texture2D ResultImage;
+        public Texture ResultImage;
     }
 }
 
