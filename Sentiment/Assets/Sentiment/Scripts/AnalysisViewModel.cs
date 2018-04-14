@@ -8,6 +8,7 @@ public class AnalysisViewModel : MonoBehaviour
     public event Action<Analysis> Reaction;
     public Analysis state;
 
+    [Serializable]
     public struct Analysis
     {
         public float Glad;
