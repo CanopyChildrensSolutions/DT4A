@@ -40,17 +40,15 @@ namespace Sentiment
             var videoFeed = GetComponentInParent<VideoFeed>();
             byte[] pngBytes = videoFeed.EncodeCurrentFrameAsPNG();
 
-            StartCoroutine(RequestEmotion(pngBytes));
-            
-            File.WriteAllBytes(Path.Combine(Application.persistentDataPath, "Test.png"), pngBytes);
+            StartCoroutine(RequestSentiment(pngBytes));
         }
 
-        IEnumerator RequestEmotion(byte [] imageBytes)
+        IEnumerator RequestSentiment(byte [] imageBytes)
         {
-            var sr = GetComponentInParent<SentimentRequest>();
-            yield return sr.Upload(imageBytes);
+            var sr = new SentimentRequest();
+            yield return sr.Send(imageBytes);
 
-            TextMesh.text = sr.Response.ToString();
+            TextMesh.text = sr.Result.ToString();
         }
     }
 }
