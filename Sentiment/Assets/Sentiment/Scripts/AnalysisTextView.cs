@@ -2,27 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AnalysisTextView : MonoBehaviour
+namespace Sentiment
 {
-    AnalysisViewModel ViewModel;
-    TextMesh Text;
-    // Use this for initialization
-    void Start()
+    public class AnalysisTextView : MonoBehaviour
     {
-        ViewModel = FindObjectOfType<AnalysisViewModel>();
-        ViewModel.Reaction += Render;
-        Text = GetComponent<TextMesh>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-    public void Render(AnalysisViewModel.Analysis analysis)
-    {
-        Text.text = "Glad: " + analysis.Glad + "\n";
-        Text.text += "Sad: " + analysis.Sad + "\n";
-        Text.text += "Mad: " + analysis.Mad;
+        AnalysisViewModel ViewModel;
+        TextMesh Text;
+        // Use this for initialization
+        void Start()
+        {
+            ViewModel = GetComponentInParent<AnalysisViewModel>();
+            ViewModel.Reaction += Render;
+            Text = GetComponent<TextMesh>();
+        }
+        public void Render(EmotionAnalysis state)
+        {
+            Text.text = "Glad: " + state.Glad + "\n";
+            Text.text += "Sad: " + state.Sad + "\n";
+            Text.text += "Mad: " + state.Mad;
+        }
     }
 }
